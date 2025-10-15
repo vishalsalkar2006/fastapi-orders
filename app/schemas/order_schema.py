@@ -17,6 +17,6 @@ class OrderResponse(BaseModel):
     total_price: float
     status: str
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True  # Pydantic v2 replacement for orm_mode
+    }
