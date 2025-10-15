@@ -1,4 +1,5 @@
 from pydantic import BaseModel, conint, constr
+from typing import Optional  # ✅ add this line
 
 class OrderCreate(BaseModel):
     customer_name: constr(min_length=1)
@@ -6,8 +7,11 @@ class OrderCreate(BaseModel):
     quantity: conint(gt=0)
 
 class OrderUpdate(BaseModel):
-    quantity: int | None = None
-    status: str | None = None
+    customer_name: Optional[str] = None
+    product_id: Optional[int] = None
+    quantity: Optional[int] = None
+    total_price: Optional[float] = None
+    status: Optional[str] = None
 
 class OrderResponse(BaseModel):
     id: int
@@ -18,5 +22,5 @@ class OrderResponse(BaseModel):
     status: str
 
     model_config = {
-        "from_attributes": True  # Pydantic v2 replacement for orm_mode
+        "from_attributes": True  # ✅ Pydantic v2 version of orm_mode
     }

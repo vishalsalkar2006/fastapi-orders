@@ -8,5 +8,5 @@ class Order(Base):
     product_id = Column(Integer)
     quantity = Column(Integer)
     total_price = Column(Float)
-    status = Column(String(50))
+    status = Column(String, nullable=False, default="Pending")  # ✅ Default adde
 
