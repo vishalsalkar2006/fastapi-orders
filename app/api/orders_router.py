@@ -1,3 +1,4 @@
+from app.models.order_model import Order
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
@@ -5,6 +6,7 @@ from app.schemas.order_schema import OrderCreate, OrderResponse, OrderUpdate
 from app.services import order_service
 from app.repository import order_repository
 from app.core.database import SessionLocal
+
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -30,3 +32,11 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Order not found")
     return order
 
+@router.delete("/{order_id}", response_model=dict)
+def delete_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    db.delete(order)
+    db.commit()
+    return {"message": f"Order {order_id} deleted successfully"}
