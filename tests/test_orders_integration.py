@@ -97,25 +97,22 @@ async def test_create_order_api_error(monkeypatch, db):
 
 # --- Delete endpoint tests ---
 def test_delete_order_success(db):
-    # Create order
     order = Order(customer_name="Test Delete", product_id=1, quantity=1, total_price=100)
     db.add(order)
     db.commit()
     db.refresh(order)
 
-    # Delete order via API
     response = client.delete(f"/orders/{order.id}")
     assert response.status_code == 200
     assert response.json() == {"message": f"Order {order.id} deleted successfully"}
 
 def test_delete_order_not_found():
-    response = client.delete("/orders/99999")  # Assuming this ID doesn't exist
+    response = client.delete("/orders/99999")
     assert response.status_code == 404
     assert response.json()["detail"] == "Order not found"
 
 # --- Update endpoint tests ---
 def test_update_order_success(db):
-    # Create an order to update
     order = Order(customer_name="Before Update", product_id=1, quantity=1, total_price=100)
     db.add(order)
     db.commit()
@@ -129,24 +126,20 @@ def test_update_order_success(db):
         "status": "Pending"
     }
 
-    # Call the PUT endpoint
     response = client.put(f"/orders/{order.id}", json=updated_data)
-
     assert response.status_code == 200
     data = response.json()
     assert data["customer_name"] == "After Update"
     assert data["quantity"] == 3
-    assert data["total_price"] == 150.0  # ✅ corrected field name
+    assert data["total_price"] == 150.0
     assert data["status"] == "Pending"
-
-
 
 def test_update_order_not_found():
     updated_data = {
         "customer_name": "Nonexistent",
         "product_id": 2,
         "quantity": 1,
-        "price": 120.0,
+        "total_price": 120.0,  # ✅ corrected field name
         "status":"Pending"
     }
 
@@ -154,22 +147,20 @@ def test_update_order_not_found():
     assert response.status_code == 404
     assert response.json()["detail"] == "Order not found"
 
-
 def test_partial_update_order(db):
-    # Create an order
-    order = Order(customer_name="Partial Update", product_id=1, quantity=2, total_price=200 ,status="Pending")
+    order = Order(customer_name="Partial Update", product_id=1, quantity=2, total_price=200, status="Pending")
     db.add(order)
     db.commit()
     db.refresh(order)
 
-    # Only update quantity
     partial_data = {
         "quantity": 5
     }
 
-    response = client.put(f"/orders/{order.id}", json=partial_data)
+    response = client.patch(f"/orders/{order.id}", json=partial_data)  # ✅ PATCH for partial update
     assert response.status_code == 200
     data = response.json()
 
     assert data["quantity"] == 5
     assert data["customer_name"] == "Partial Update"  # unchanged
+    assert data["total_price"] == 200  # unchanged
