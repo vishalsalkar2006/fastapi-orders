@@ -1,5 +1,5 @@
 from app.models.order_model import Order
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.schemas.order_schema import OrderCreate, OrderResponse, OrderUpdate
